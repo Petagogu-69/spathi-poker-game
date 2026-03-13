@@ -314,6 +314,7 @@ function startMatch() {
   const difficultyLabel = { easy: 'Lehtë', medium: 'Mesatare', hard: 'Vështirë' };
   const cpuBaseName = roomCpuNames[gameState.selectedRoom || 'room1'] || 'CPU';
   const cpuDisplayName = `${cpuBaseName} • ${difficultyLabel[gameState.difficulty]}`;
+  toast(`Hyre në ${cpuBaseName}. Loja po nis...`);
   el('cpuName').textContent = cpuDisplayName;
   el('cpuZoneName').textContent = cpuDisplayName;
   const deck = createDeck();
@@ -350,7 +351,7 @@ function dealHandsIfNeeded() {
 
 function renderCard(card, hidden = false, interactive = false) {
   const div = document.createElement('div');
-  div.className = `card ${hidden ? 'card-back' : ''} ${interactive ? 'playable' : ''}`;
+  div.className = `card dealt ${hidden ? 'card-back' : ''} ${interactive ? 'playable' : ''}`;
   if (hidden) {
     div.innerHTML = `<div>♠</div>`;
     return div;
@@ -369,13 +370,25 @@ function renderGame() {
   const playerRow = el('playerHandRow');
   const cpuRow = el('cpuHandRow');
   const tableRow = el('tableCardsRow');
+  const table = el('pokerTable');
   playerRow.innerHTML = '';
   cpuRow.innerHTML = '';
   tableRow.innerHTML = '';
-  m.cpuHand.forEach(() => cpuRow.appendChild(renderCard({}, true)));
-  m.tableCards.forEach(card => tableRow.appendChild(renderCard(card, false, false)));
-  m.playerHand.forEach(card => {
+  table.classList.toggle('player-turn', m.turn === 'player');
+  table.classList.toggle('cpu-turn', m.turn === 'cpu');
+  m.cpuHand.forEach((_, i) => {
+    const card = renderCard({}, true);
+    card.style.animationDelay = `${i * 60}ms`;
+    cpuRow.appendChild(card);
+  });
+  m.tableCards.forEach((card, i) => {
+    const c = renderCard(card, false, false);
+    c.style.animationDelay = `${i * 55}ms`;
+    tableRow.appendChild(c);
+  });
+  m.playerHand.forEach((card, i) => {
     const c = renderCard(card, false, true);
+    c.style.animationDelay = `${i * 70}ms`;
     if (m.selectedId === card.id) c.classList.add('selected');
     c.addEventListener('click', () => playPlayerCard(card.id));
     playerRow.appendChild(c);
@@ -392,7 +405,9 @@ function updateHud() {
   el('playerSpadesCount').textContent = m.captured.player.filter(c => c.suit === 'spades').length;
   el('cpuSpadesCount').textContent = m.captured.cpu.filter(c => c.suit === 'spades').length;
   el('turnBadge').textContent = m.turn === 'player' ? 'Radha jote!' : 'Radha e CPU';
-  el('gameInfo').textContent = m.turn === 'player' ? 'Kliko një letër për ta luajtur.' : 'Kompjuteri po mendon...';
+  el('gameInfo').textContent = m.turn === 'player' ? 'Zgjidh letrën më të fortë dhe godit tavolinën.' : 'Kompjuteri po mendon lëvizjen më të mirë...';
+  const hint = el('captureHint');
+  if (hint) hint.textContent = m.turn === 'player' ? 'Shiko nëse mund të kapësh kombinime deri në 10.' : 'CPU po llogarit kapjen më të mirë.';
 }
 
 function playPlayerCard(cardId) {
@@ -414,6 +429,7 @@ function playCard(side, card, handIndex) {
     m.captured[side].push(card, ...chosen);
     m.tableCards = m.tableCards.filter(c => !chosen.some(x => x.id === c.id));
     m.lastCapturer = side;
+    toast(`${side === 'player' ? gameState.profile.name : el('cpuName').textContent} kapi ${chosen.length} letra!`);
     beep(660, .08, 'triangle', .025);
   } else {
     m.tableCards.push(card);
