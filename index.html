@@ -140,17 +140,22 @@
               <div class="coin-chip">🪙 <span id="gameCoinsValue">0</span></div>
             </div>
             <div class="poker-table room1-theme" id="pokerTable">
-              <div class="player-zone top-zone">
+              <div class="table-aura"></div>
+              <div class="table-lights">
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+              <div class="table-fog"></div>
+              <div class="player-zone top-zone" id="cpuZone">
                 <div class="zone-name" id="cpuZoneName">CPU</div>
                 <div class="card-row card-row-back" id="cpuHandRow"></div>
               </div>
 
-              <div class="table-center">
-                <div class="center-label">Tavolina</div>
+              <div class="table-center" id="tableCenter">
+                <div class="center-label">Tavolina</div><div class="center-subtitle" id="captureHint">Kap letrat me zgjuarsi.</div>
                 <div class="card-row table-cards" id="tableCardsRow"></div>
               </div>
 
-              <div class="player-zone bottom-zone">
+              <div class="player-zone bottom-zone" id="playerZone">
                 <div class="zone-name">Letrat e tua</div>
                 <div class="hand-panel">
                   <div class="card-row player-hand" id="playerHandRow"></div>
