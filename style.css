@@ -357,3 +357,142 @@ button, input { font: inherit; }
   .rooms-grid { grid-template-columns: 1fr; }
   .room-card { min-height: 150px; }
 }
+
+/* livelier table */
+.poker-table {
+  isolation: isolate;
+  background-blend-mode: screen, normal;
+}
+.poker-table::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 25%, rgba(255,223,154,.16), transparent 18%), radial-gradient(circle at 50% 70%, rgba(255,80,80,.08), transparent 24%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 0;
+}
+.table-aura,
+.table-fog,
+.table-lights { position:absolute; inset:0; pointer-events:none; z-index:0; }
+.table-aura {
+  background: radial-gradient(circle at center, rgba(253,215,125,.18), transparent 28%), radial-gradient(circle at 50% 85%, rgba(255,255,255,.06), transparent 20%);
+  animation: auraPulse 5s ease-in-out infinite;
+}
+.table-fog {
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.09), transparent 18%), radial-gradient(circle at 75% 38%, rgba(255,255,255,.05), transparent 16%), radial-gradient(circle at 58% 58%, rgba(255,255,255,.05), transparent 18%);
+  filter: blur(12px);
+  opacity: .55;
+  animation: fogMove 16s linear infinite alternate;
+}
+.table-lights {
+  display:flex; justify-content:space-evenly; align-items:flex-start;
+  padding-top: 8px;
+}
+.table-lights span {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: radial-gradient(circle, #ffe7a0 0%, #cda348 55%, rgba(205,163,72,0) 70%);
+  box-shadow: 0 0 16px rgba(255,220,135,.65), 0 0 28px rgba(255,120,120,.22);
+  animation: blinkLights 2.4s ease-in-out infinite;
+}
+.table-lights span:nth-child(2){animation-delay:.2s}
+.table-lights span:nth-child(3){animation-delay:.4s}
+.table-lights span:nth-child(4){animation-delay:.6s}
+.table-lights span:nth-child(5){animation-delay:.8s}
+.table-lights span:nth-child(6){animation-delay:1s}
+
+#cpuZone, #playerZone, #tableCenter { transition: transform .25s ease, filter .25s ease, opacity .25s ease; }
+.poker-table.player-turn #playerZone { filter: drop-shadow(0 0 24px rgba(244,210,125,.42)); }
+.poker-table.player-turn #cpuZone { opacity: .88; }
+.poker-table.cpu-turn #cpuZone { filter: drop-shadow(0 0 24px rgba(244,210,125,.42)); transform: translateY(2px); }
+.poker-table.cpu-turn #playerZone { opacity: .9; }
+
+.center-subtitle {
+  color: rgba(255,244,222,.78);
+  font-size: .92rem;
+  letter-spacing: .4px;
+  text-shadow: 0 0 10px rgba(0,0,0,.45);
+}
+.hand-panel {
+  background: linear-gradient(180deg, rgba(10,20,18,.5), rgba(6,10,10,.6));
+  backdrop-filter: blur(6px);
+}
+.player-hand .card {
+  transform-origin: center bottom;
+}
+.player-hand .card:nth-child(1){ transform: rotate(-5deg); }
+.player-hand .card:nth-child(2){ transform: rotate(-2deg); }
+.player-hand .card:nth-child(3){ transform: rotate(2deg); }
+.player-hand .card:nth-child(4){ transform: rotate(5deg); }
+.player-hand .card.playable:hover,
+.player-hand .card.selected {
+  transform: translateY(-18px) scale(1.05) !important;
+}
+.table-cards .card {
+  animation: tableDrop .35s ease both;
+}
+.card.dealt {
+  animation: dealRise .35s ease both;
+}
+.card.capture-flash {
+  animation: captureFlash .55s ease;
+}
+.card-back {
+  position: relative;
+  overflow: hidden;
+}
+.card-back::before {
+  content: "";
+  position:absolute; inset:-30% -10%;
+  background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,.2) 45%, transparent 65%);
+  transform: translateX(-100%) rotate(12deg);
+  animation: backShine 2.8s ease-in-out infinite;
+}
+.score-box, .status-box {
+  background: linear-gradient(180deg, rgba(24,8,8,.92), rgba(10,6,6,.9));
+}
+.turn-badge {
+  box-shadow: 0 0 22px rgba(244,210,125,.28);
+  animation: pulseBadge 1.8s ease-in-out infinite;
+}
+.mode-card, .menu-tile, .room-card, .score-box, .status-box, .coin-chip {
+  position: relative;
+  overflow: hidden;
+}
+.mode-card::after, .menu-tile::after, .score-box::after, .status-box::after, .coin-chip::after {
+  content:"";
+  position:absolute; inset:auto -50% 0 auto; width: 160%; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(244,210,125,.34), transparent);
+  animation: sweep 5s linear infinite;
+}
+.coin-chip {
+  animation: chipGlow 2.4s ease-in-out infinite;
+}
+.hud-stat strong { color: var(--gold); }
+.room-card .room-name, .room-card .room-note, .room-card .room-badge { z-index: 1; }
+.room-card::before {
+  content:"";
+  position:absolute; inset:0;
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,.12), rgba(0,0,0,.55));
+}
+.room-card::after {
+  content:"";
+  position:absolute; inset:auto 0 0 0; height: 40%;
+  background: linear-gradient(180deg, transparent, rgba(244,210,125,.1));
+}
+
+@keyframes auraPulse { 0%,100% { opacity:.82; transform: scale(1); } 50% { opacity:1; transform: scale(1.04); } }
+@keyframes fogMove { from { transform: translate3d(-1%, 0, 0); } to { transform: translate3d(2%, 1%, 0); } }
+@keyframes blinkLights { 0%,100% { opacity:.72; transform: scale(.95);} 50% { opacity:1; transform: scale(1.15);} }
+@keyframes pulseBadge { 0%,100% { transform: scale(1);} 50% { transform: scale(1.04);} }
+@keyframes dealRise { from { opacity:0; transform: translateY(28px) scale(.92);} to { opacity:1; transform: translateY(0) scale(1);} }
+@keyframes tableDrop { from { opacity:0; transform: translateY(-16px) scale(.95);} to { opacity:1; transform: translateY(0) scale(1);} }
+@keyframes captureFlash { 0% { box-shadow: 0 0 0 rgba(255,255,255,0);} 45% { box-shadow: 0 0 28px rgba(244,210,125,.72);} 100% { box-shadow: 0 8px 16px rgba(0,0,0,.28);} }
+@keyframes backShine { 0%,70%,100% { transform: translateX(-120%) rotate(12deg);} 30% { transform: translateX(120%) rotate(12deg);} }
+@keyframes sweep { from { transform: translateX(-100%);} to { transform: translateX(100%);} }
+@keyframes chipGlow { 0%,100% { box-shadow: 0 0 0 rgba(244,210,125,0), 0 0 0 rgba(255,45,45,0);} 50% { box-shadow: 0 0 16px rgba(244,210,125,.18), 0 0 18px rgba(255,45,45,.1);} }
+
+@media (max-width: 640px) {
+  .table-lights span { width: 9px; height: 9px; }
+  .center-subtitle { font-size: .82rem; }
+}
