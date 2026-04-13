@@ -604,6 +604,7 @@ function setupEvents() {
   el('openMissionsBtn').addEventListener('click', () => { renderMissions(); showScreen('screen-missions'); });
   el('openLeaderboardBtn').addEventListener('click', () => showScreen('screen-leaderboard'));
   el('openRulesBtn').addEventListener('click', () => showScreen('screen-rules'));
+  el('openMapBtn').addEventListener('click', () => showScreen('screen-map'));
   document.querySelectorAll('[data-back-home]').forEach(btn => btn.addEventListener('click', () => showScreen('screen-home')));
   document.querySelectorAll('.difficulty-btn').forEach(btn => btn.addEventListener('click', () => {
     document.querySelectorAll('.difficulty-btn').forEach(x => x.classList.remove('active'));
