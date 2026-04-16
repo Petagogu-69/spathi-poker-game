@@ -7,7 +7,7 @@ body {
 }
 .app-layout {
   display: grid;
-  grid-template-columns: 360px 1fr;
+  grid-template-columns: 380px 1fr;
   min-height: 100vh;
 }
 .sidebar {
@@ -18,15 +18,12 @@ body {
   gap: 12px;
   align-content: start;
 }
-h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: #ffcb3d;
-}
-.lang-row, .search-row, .left-actions {
+h1 { margin: 0; font-size: 1.5rem; color: #ffcb3d; }
+.lang-row, .search-row, .left-actions, .walk-actions {
   display: flex;
   gap: 8px;
 }
+.walk-actions { flex-wrap: wrap; }
 .lang-btn, #searchBtn, #categoryBtn, .action-chip {
   border: none;
   border-radius: 8px;
@@ -44,16 +41,10 @@ h1 {
   color: #fff;
   padding: 8px;
 }
-.action-chip.yellow {
-  background: #f4d03f;
-  color: #111;
-  font-weight: 700;
-}
-.action-chip.blue {
-  background: #4da3ff;
-  color: #041527;
-  font-weight: 700;
-}
+.action-chip.yellow { background: #f4d03f; color: #111; font-weight: 700; }
+.action-chip.orange { background: #ff9f43; color: #111; font-weight: 700; }
+.action-chip.blue { background: #4da3ff; color: #041527; font-weight: 700; }
+.action-chip:disabled { opacity: 0.45; cursor: not-allowed; }
 .status-panel {
   background: #252525;
   border: 1px solid #3b3b3b;
@@ -71,21 +62,20 @@ h1 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  min-height: 180px;
+  min-height: 190px;
 }
 .list {
   margin: 0;
   padding: 8px;
   list-style: none;
   border-radius: 8px;
-  min-height: 160px;
+  min-height: 170px;
+  max-height: 34vh;
+  overflow: auto;
 }
 .yellow-list { background: rgba(244, 208, 63, 0.2); border: 1px solid #8f7d2a; }
 .blue-list { background: rgba(77, 163, 255, 0.2); border: 1px solid #2e6ca9; }
-.list li {
-  margin-bottom: 6px;
-  font-size: 0.86rem;
-}
+.list li { margin-bottom: 6px; font-size: 0.86rem; }
 .map-wrap, #map { width: 100%; height: 100vh; }
 .walk-marker {
   width: 18px;
@@ -95,6 +85,14 @@ h1 {
   border: 2px solid #fff;
   box-shadow: 0 0 10px rgba(255, 106, 0, 0.8);
 }
+.pin-start, .pin-end {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+}
+.pin-start { background: #f4d03f; }
+.pin-end { background: #4da3ff; }
 @media (max-width: 900px) {
   .app-layout { grid-template-columns: 1fr; }
   .sidebar { border-right: none; border-bottom: 1px solid #333; }
