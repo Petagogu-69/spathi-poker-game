@@ -4,7 +4,576 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Spathi Premium</title>
-  <link rel="stylesheet" href="style.css" />
+  <style>
+:root {
+  --bg: #070304;
+  --panel: rgba(23, 7, 7, 0.88);
+  --panel-2: rgba(12, 19, 16, 0.92);
+  --red: #d62b2b;
+  --red-soft: #ff6e6e;
+  --gold: #f4d27d;
+  --gold-2: #c9a44c;
+  --text: #fff6ea;
+  --muted: #c8b5aa;
+  --green: #0f3829;
+  --green-2: #114d37;
+  --shadow: 0 10px 30px rgba(0,0,0,.45);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  background:
+    radial-gradient(circle at top, rgba(168,16,16,.18), transparent 28%),
+    repeating-linear-gradient(135deg, rgba(255,0,0,.03) 0 24px, transparent 24px 48px),
+    linear-gradient(180deg, #140405, #050304 60%);
+  color: var(--text);
+  min-height: 100vh;
+}
+button, input { font: inherit; }
+.app-shell { min-height: 100vh; padding: 16px 18px 28px; }
+.topbar {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 18px;
+}
+.brand { display:flex; align-items:center; gap:12px; }
+.brand-mark {
+  width:54px; height:54px; border-radius:50%; display:grid; place-items:center;
+  background: linear-gradient(180deg, #3b0a0a, #120708);
+  border: 1px solid rgba(255, 92, 92, .4);
+  box-shadow: 0 0 22px rgba(255, 70, 70, .25);
+  font-size: 28px;
+}
+.brand h1 { margin:0; letter-spacing: 3px; color:#ffa8a8; }
+.brand p { margin:2px 0 0; color:var(--muted); font-size: .9rem; }
+.topbar-right { display:flex; gap:10px; }
+.icon-btn, .secondary-btn, .primary-btn, .menu-tile, .difficulty-btn, .shop-tab {
+  border: 1px solid rgba(255, 120, 120, .25);
+  background: rgba(30, 8, 8, .85);
+  color: var(--text);
+  cursor:pointer;
+  transition: .2s ease;
+}
+.icon-btn {
+  width:46px; height:46px; border-radius:14px; font-size: 1.1rem;
+}
+.icon-btn:hover, .secondary-btn:hover, .menu-tile:hover, .difficulty-btn:hover, .shop-tab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 18px rgba(255, 80, 80, .18);
+}
+.primary-btn {
+  border-radius: 16px;
+  padding: 14px 22px;
+  background: linear-gradient(180deg, #e93b3b, #b81f1f);
+  box-shadow: 0 0 20px rgba(255, 60, 60, .25);
+  font-weight: 700;
+}
+.secondary-btn {
+  border-radius: 14px; padding: 12px 18px;
+}
+.secondary-btn.small { padding: 8px 12px; font-size:.92rem; }
+.screen { display:none; }
+.screen.active { display:block; animation: fadeIn .24s ease; }
+@keyframes fadeIn { from { opacity:0; transform: translateY(8px);} to {opacity:1; transform:none;} }
+.center-card {
+  max-width: 460px; margin: 7vh auto 0; padding: 28px;
+  background: var(--panel);
+  border-radius: 28px;
+  border: 1px solid rgba(255, 88, 88, .25);
+  box-shadow: var(--shadow);
+}
+.wide-card { max-width: 920px; }
+.glow-red { box-shadow: var(--shadow), 0 0 24px rgba(255, 62, 62, .18); }
+.glow-gold { box-shadow: var(--shadow), 0 0 22px rgba(244, 210, 125, .16); }
+.login-card input {
+  width:100%; padding:14px 16px; margin: 8px 0 16px;
+  border-radius: 16px; border:1px solid rgba(255, 102, 102, .25);
+  background:#140607; color:var(--text);
+}
+.error-text { color:#ff7d7d; min-height: 22px; }
+.muted { color: var(--muted); }
+.dashboard-grid {
+  display:grid; grid-template-columns: 300px 1fr; gap:18px;
+}
+.panel {
+  background: var(--panel);
+  border-radius: 26px;
+  border:1px solid rgba(255, 89, 89, .18);
+  padding: 22px;
+  box-shadow: var(--shadow);
+}
+.profile-panel { min-height: 540px; }
+.avatar {
+  width:78px; height:78px; border-radius:50%; display:grid; place-items:center;
+  font-size:2rem; font-weight:700; color:#fff;
+  background: linear-gradient(180deg, #c72d2d, #721515);
+  box-shadow: 0 0 20px rgba(255, 87, 87, .2);
+}
+.stats-list { margin:18px 0; display:grid; gap:10px; }
+.stats-list div, .hud-stat, .leader-row, .shop-item, .mission-item {
+  display:flex; justify-content:space-between; align-items:center;
+}
+.home-main { display:grid; gap:18px; }
+.hero-cards { display:grid; grid-template-columns: 1fr 1fr; gap:18px; }
+.mode-card {
+  min-height: 240px;
+  border-radius: 30px; padding: 26px;
+  background: linear-gradient(180deg, rgba(17,8,8,.94), rgba(8,7,8,.94));
+  border:1px solid rgba(244,210,125,.25);
+  box-shadow: var(--shadow);
+  cursor:pointer;
+}
+.mode-card.disabled { opacity:.58; cursor:default; }
+.mode-card:hover:not(.disabled) { transform: translateY(-4px); }
+.mode-emoji { font-size: 4rem; margin-bottom: 10px; }
+.home-actions-grid {
+  display:grid; grid-template-columns: repeat(4, 1fr); gap:14px;
+}
+.menu-tile {
+  border-radius: 22px; min-height: 120px; padding: 20px;
+  display:flex; flex-direction:column; gap:12px; justify-content:center; align-items:center;
+  font-size:1.6rem;
+}
+.menu-tile span { font-size: 1rem; }
+.difficulty-row { display:flex; gap:12px; margin: 18px 0 22px; }
+.difficulty-btn, .shop-tab {
+  border-radius: 14px; padding: 12px 18px;
+}
+.difficulty-btn.active, .shop-tab.active {
+  background: linear-gradient(180deg, #f5d987, #b88e35);
+  color:#1b1206;
+  font-weight:700;
+}
+.casual-actions, .modal-actions { display:flex; gap:12px; flex-wrap:wrap; }
+.game-layout { display:grid; grid-template-columns: 300px 1fr; gap:16px; }
+.hud-panel { display:grid; gap:14px; }
+.score-box, .status-box {
+  background: var(--panel);
+  border-radius: 24px;
+  border:1px solid rgba(255, 95, 95, .18);
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+.table-section { display:grid; gap:12px; }
+.table-header-row { display:flex; justify-content:space-between; align-items:center; }
+.coin-chip {
+  padding: 10px 16px; border-radius: 999px; background:#1a0d0d;
+  border:1px solid rgba(244,210,125,.28); color:var(--gold);
+}
+.poker-table {
+  min-height: 74vh;
+  border-radius: 44px;
+  background:
+    radial-gradient(circle at center, rgba(255,255,255,.05), transparent 28%),
+    linear-gradient(180deg, rgba(15,56,41,.98), rgba(9,35,26,.98));
+  border: 4px solid rgba(105, 38, 22, .85);
+  outline: 2px solid rgba(244, 210, 125, .18);
+  box-shadow:
+    inset 0 0 50px rgba(255,255,255,.03),
+    inset 0 0 90px rgba(0,0,0,.36),
+    0 0 35px rgba(244,210,125,.1),
+    0 0 35px rgba(255,45,45,.1);
+  padding: 26px 24px;
+  display:grid;
+  grid-template-rows: auto 1fr auto;
+  position:relative;
+  overflow:hidden;
+}
+.poker-table::before {
+  content:""; position:absolute; inset:18px; border-radius: 36px;
+  border:1px solid rgba(244,210,125,.14); pointer-events:none;
+}
+.player-zone { z-index:1; }
+.top-zone { display:grid; gap:12px; justify-items:center; }
+.bottom-zone { align-self:end; display:grid; gap:10px; }
+.zone-name, .center-label { text-align:center; color:var(--gold); letter-spacing: 1px; }
+.table-center { display:grid; align-content:center; justify-items:center; gap:14px; }
+.card-row { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; align-items:center; }
+.hand-panel {
+  background: rgba(7,15,12,.45); border:1px solid rgba(244,210,125,.16);
+  padding: 18px 18px 14px; border-radius: 26px;
+  box-shadow: inset 0 0 22px rgba(255,255,255,.03), 0 0 22px rgba(255,0,0,.08);
+}
+.card {
+  width: 82px; height: 118px; border-radius: 14px;
+  background: linear-gradient(180deg, #f9f7f3, #e5ddd3);
+  color:#111; border: 1px solid rgba(0,0,0,.15);
+  box-shadow: 0 8px 16px rgba(0,0,0,.28);
+  padding: 8px; position:relative; user-select:none;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.card.playable:hover, .card.selected {
+  transform: translateY(-10px) scale(1.03);
+  box-shadow: 0 14px 28px rgba(0,0,0,.34), 0 0 18px rgba(255,255,255,.18);
+  cursor:pointer;
+}
+.card-back {
+  background: linear-gradient(180deg, #2c0909, #100506);
+  color:#f7d98a;
+  border:1px solid rgba(244,210,125,.22);
+  display:grid; place-items:center; font-size: 1.6rem;
+}
+.card-value-top, .card-value-bottom {
+  position:absolute; font-weight:700; font-size: 1.2rem;
+}
+.card-value-top { top:8px; left:10px; }
+.card-value-bottom { right:10px; bottom:8px; transform: rotate(180deg); }
+.card-suit {
+  position:absolute; inset:0; display:grid; place-items:center;
+  font-size: 2.3rem;
+}
+.red-suit { color:#d62828; }
+.black-suit { color:#111; }
+.turn-badge {
+  display:inline-block; padding:10px 14px; border-radius:999px;
+  background: linear-gradient(180deg, #efcb6b, #b48a28);
+  color:#140c05; font-weight:700;
+}
+.shop-grid {
+  display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-top:18px;
+}
+.shop-item, .mission-item {
+  background: rgba(20,9,9,.78); border-radius: 22px; border:1px solid rgba(255, 94, 94, .16);
+  padding:16px; box-shadow: var(--shadow); gap:10px; align-items:flex-start; flex-direction:column;
+}
+.shop-item .preview {
+  width:100%; height:110px; border-radius: 16px; background: linear-gradient(180deg, #153c2d, #0a2118);
+  border:1px solid rgba(244,210,125,.15);
+}
+.shop-item .preview.red { background: linear-gradient(180deg, #4f1111, #170708); }
+.shop-item .preview.gold { background: linear-gradient(180deg, #6a5320, #241809); }
+.shop-item .item-row, .mission-item .item-row { width:100%; display:flex; justify-content:space-between; gap:10px; }
+.missions-list { display:grid; gap:12px; margin-top:18px; }
+.leaderboard-box { margin-top: 16px; background: rgba(15,8,8,.72); border-radius: 24px; padding: 12px; }
+.leader-row { padding: 14px 12px; border-bottom: 1px solid rgba(255,255,255,.06); }
+.leader-row.header { color:var(--gold); font-weight:700; }
+.rules-content { line-height: 1.7; }
+.toast {
+  position: fixed; right: 18px; bottom: 18px; z-index: 50;
+  background: rgba(17,8,8,.92); border:1px solid rgba(255,88,88,.26);
+  border-radius: 16px; padding: 14px 18px; box-shadow: var(--shadow);
+  opacity:0; pointer-events:none; transform: translateY(12px); transition:.22s ease;
+}
+.toast.show { opacity:1; transform:none; }
+.modal {
+  position: fixed; inset:0; background: rgba(0,0,0,.58); display:grid; place-items:center; z-index: 60;
+}
+.modal.hidden { display:none; }
+.modal-card {
+  max-width: 480px; width: calc(100% - 32px); background: var(--panel);
+  padding: 28px; border-radius: 24px; border:1px solid rgba(255,88,88,.26);
+}
+.modal-head { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.small-note { margin-top:14px; }
+@media (max-width: 980px) {
+  .dashboard-grid, .game-layout { grid-template-columns: 1fr; }
+  .profile-panel { min-height: auto; }
+  .hero-cards, .home-actions-grid { grid-template-columns: 1fr; }
+  .poker-table { min-height: 68vh; }
+}
+@media (max-width: 640px) {
+  .app-shell { padding: 12px; }
+  .center-card { padding: 20px; }
+  .card { width: 68px; height: 98px; }
+  .menu-tile { min-height: 92px; }
+  .brand h1 { font-size: 1.45rem; }
+}
+
+
+.rooms-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+.room-card {
+  position: relative;
+  min-height: 180px;
+  border-radius: 22px;
+  border: 2px solid rgba(244, 210, 125, 0.28);
+  background:
+    linear-gradient(180deg, rgba(7,3,4,.2), rgba(7,3,4,.75)),
+    var(--room-image) center/cover no-repeat;
+  box-shadow: 0 20px 40px rgba(0,0,0,.32), inset 0 0 0 1px rgba(255,255,255,.06);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 16px;
+  text-align: left;
+  color: var(--text);
+  cursor: pointer;
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+.room-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 26px 48px rgba(0,0,0,.42), 0 0 24px rgba(214,43,43,.25);
+}
+.room-card.active {
+  border-color: rgba(244,210,125,.92);
+  box-shadow: 0 0 0 2px rgba(244,210,125,.18), 0 28px 54px rgba(0,0,0,.5), 0 0 32px rgba(214,43,43,.28);
+}
+.room-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(11, 11, 11, 0.72);
+  border: 1px solid rgba(244,210,125,.42);
+  font-size: 12px;
+  color: var(--gold);
+}
+.room-name {
+  font-size: 22px;
+  font-weight: 700;
+  text-shadow: 0 2px 18px rgba(0,0,0,.5);
+}
+.room-note {
+  margin-top: 4px;
+  color: #efe1d3;
+}
+.poker-table {
+  position: relative;
+  overflow: hidden;
+}
+.poker-table::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.04), rgba(0,0,0,.18));
+  pointer-events: none;
+}
+.poker-table.room1-theme {
+  background: linear-gradient(180deg, rgba(12,37,48,.15), rgba(4,22,28,.15)), url('room1.jpg') center/cover no-repeat;
+}
+.poker-table.room2-theme {
+  background: linear-gradient(180deg, rgba(31,25,25,.12), rgba(10,10,10,.16)), url('room2.jpg') center/cover no-repeat;
+}
+.poker-table.room3-theme {
+  background: linear-gradient(180deg, rgba(20,62,38,.12), rgba(11,29,18,.18)), url('room3.jpg') center/cover no-repeat;
+}
+.poker-table.room4-theme {
+  background: linear-gradient(180deg, rgba(20,21,54,.12), rgba(5,8,24,.22)), url('room4.jpg') center/cover no-repeat;
+}
+.table-center, .top-zone, .bottom-zone {
+  position: relative;
+  z-index: 1;
+}
+@media (max-width: 900px) {
+  .rooms-grid { grid-template-columns: 1fr; }
+  .room-card { min-height: 150px; }
+}
+
+/* livelier table */
+.poker-table {
+  isolation: isolate;
+  background-blend-mode: screen, normal;
+}
+.poker-table::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 25%, rgba(255,223,154,.16), transparent 18%), radial-gradient(circle at 50% 70%, rgba(255,80,80,.08), transparent 24%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 0;
+}
+.table-aura,
+.table-fog,
+.table-lights { position:absolute; inset:0; pointer-events:none; z-index:0; }
+.table-aura {
+  background: radial-gradient(circle at center, rgba(253,215,125,.18), transparent 28%), radial-gradient(circle at 50% 85%, rgba(255,255,255,.06), transparent 20%);
+  animation: auraPulse 5s ease-in-out infinite;
+}
+.table-fog {
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.09), transparent 18%), radial-gradient(circle at 75% 38%, rgba(255,255,255,.05), transparent 16%), radial-gradient(circle at 58% 58%, rgba(255,255,255,.05), transparent 18%);
+  filter: blur(12px);
+  opacity: .55;
+  animation: fogMove 16s linear infinite alternate;
+}
+.table-lights {
+  display:flex; justify-content:space-evenly; align-items:flex-start;
+  padding-top: 8px;
+}
+.table-lights span {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: radial-gradient(circle, #ffe7a0 0%, #cda348 55%, rgba(205,163,72,0) 70%);
+  box-shadow: 0 0 16px rgba(255,220,135,.65), 0 0 28px rgba(255,120,120,.22);
+  animation: blinkLights 2.4s ease-in-out infinite;
+}
+.table-lights span:nth-child(2){animation-delay:.2s}
+.table-lights span:nth-child(3){animation-delay:.4s}
+.table-lights span:nth-child(4){animation-delay:.6s}
+.table-lights span:nth-child(5){animation-delay:.8s}
+.table-lights span:nth-child(6){animation-delay:1s}
+
+#cpuZone, #playerZone, #tableCenter { transition: transform .25s ease, filter .25s ease, opacity .25s ease; }
+.poker-table.player-turn #playerZone { filter: drop-shadow(0 0 24px rgba(244,210,125,.42)); }
+.poker-table.player-turn #cpuZone { opacity: .88; }
+.poker-table.cpu-turn #cpuZone { filter: drop-shadow(0 0 24px rgba(244,210,125,.42)); transform: translateY(2px); }
+.poker-table.cpu-turn #playerZone { opacity: .9; }
+
+.center-subtitle {
+  color: rgba(255,244,222,.78);
+  font-size: .92rem;
+  letter-spacing: .4px;
+  text-shadow: 0 0 10px rgba(0,0,0,.45);
+}
+.hand-panel {
+  background: linear-gradient(180deg, rgba(10,20,18,.5), rgba(6,10,10,.6));
+  backdrop-filter: blur(6px);
+}
+.player-hand .card {
+  transform-origin: center bottom;
+}
+.player-hand .card:nth-child(1){ transform: rotate(-5deg); }
+.player-hand .card:nth-child(2){ transform: rotate(-2deg); }
+.player-hand .card:nth-child(3){ transform: rotate(2deg); }
+.player-hand .card:nth-child(4){ transform: rotate(5deg); }
+.player-hand .card.playable:hover,
+.player-hand .card.selected {
+  transform: translateY(-18px) scale(1.05) !important;
+}
+.table-cards .card {
+  animation: tableDrop .35s ease both;
+}
+.card.dealt {
+  animation: dealRise .35s ease both;
+}
+.card.capture-flash {
+  animation: captureFlash .55s ease;
+}
+.card-back {
+  position: relative;
+  overflow: hidden;
+}
+.card-back::before {
+  content: "";
+  position:absolute; inset:-30% -10%;
+  background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,.2) 45%, transparent 65%);
+  transform: translateX(-100%) rotate(12deg);
+  animation: backShine 2.8s ease-in-out infinite;
+}
+.score-box, .status-box {
+  background: linear-gradient(180deg, rgba(24,8,8,.92), rgba(10,6,6,.9));
+}
+.turn-badge {
+  box-shadow: 0 0 22px rgba(244,210,125,.28);
+  animation: pulseBadge 1.8s ease-in-out infinite;
+}
+.mode-card, .menu-tile, .room-card, .score-box, .status-box, .coin-chip {
+  position: relative;
+  overflow: hidden;
+}
+.mode-card::after, .menu-tile::after, .score-box::after, .status-box::after, .coin-chip::after {
+  content:"";
+  position:absolute; inset:auto -50% 0 auto; width: 160%; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(244,210,125,.34), transparent);
+  animation: sweep 5s linear infinite;
+}
+.coin-chip {
+  animation: chipGlow 2.4s ease-in-out infinite;
+}
+.hud-stat strong { color: var(--gold); }
+.room-card .room-name, .room-card .room-note, .room-card .room-badge { z-index: 1; }
+.room-card::before {
+  content:"";
+  position:absolute; inset:0;
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,.12), rgba(0,0,0,.55));
+}
+.room-card::after {
+  content:"";
+  position:absolute; inset:auto 0 0 0; height: 40%;
+  background: linear-gradient(180deg, transparent, rgba(244,210,125,.1));
+}
+
+@keyframes auraPulse { 0%,100% { opacity:.82; transform: scale(1); } 50% { opacity:1; transform: scale(1.04); } }
+@keyframes fogMove { from { transform: translate3d(-1%, 0, 0); } to { transform: translate3d(2%, 1%, 0); } }
+@keyframes blinkLights { 0%,100% { opacity:.72; transform: scale(.95);} 50% { opacity:1; transform: scale(1.15);} }
+@keyframes pulseBadge { 0%,100% { transform: scale(1);} 50% { transform: scale(1.04);} }
+@keyframes dealRise { from { opacity:0; transform: translateY(28px) scale(.92);} to { opacity:1; transform: translateY(0) scale(1);} }
+@keyframes tableDrop { from { opacity:0; transform: translateY(-16px) scale(.95);} to { opacity:1; transform: translateY(0) scale(1);} }
+@keyframes captureFlash { 0% { box-shadow: 0 0 0 rgba(255,255,255,0);} 45% { box-shadow: 0 0 28px rgba(244,210,125,.72);} 100% { box-shadow: 0 8px 16px rgba(0,0,0,.28);} }
+@keyframes backShine { 0%,70%,100% { transform: translateX(-120%) rotate(12deg);} 30% { transform: translateX(120%) rotate(12deg);} }
+@keyframes sweep { from { transform: translateX(-100%);} to { transform: translateX(100%);} }
+@keyframes chipGlow { 0%,100% { box-shadow: 0 0 0 rgba(244,210,125,0), 0 0 0 rgba(255,45,45,0);} 50% { box-shadow: 0 0 16px rgba(244,210,125,.18), 0 0 18px rgba(255,45,45,.1);} }
+
+@media (max-width: 640px) {
+  .table-lights span { width: 9px; height: 9px; }
+  .center-subtitle { font-size: .82rem; }
+}
+
+
+.productivity-grid {
+  margin-top: 16px;
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap:14px;
+}
+.productivity-card {
+  background: rgba(18,8,8,.8);
+  border:1px solid rgba(255,94,94,.16);
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+  display:grid;
+  gap:10px;
+}
+.timer-display {
+  font-size: 2.1rem;
+  letter-spacing: 2px;
+  text-align:center;
+  color: var(--gold);
+}
+.timer-controls, .timer-presets, .task-form {
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.task-form input,
+#memoryInput,
+#mediaUploadInput {
+  width:100%;
+  border-radius: 12px;
+  border:1px solid rgba(255,102,102,.25);
+  background:#140607;
+  color:var(--text);
+  padding:10px 12px;
+}
+#memoryInput { min-height: 130px; resize: vertical; }
+.task-list {
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:grid;
+  gap:8px;
+}
+.task-item {
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  align-items:center;
+  background: rgba(10,22,18,.45);
+  border:1px solid rgba(244,210,125,.14);
+  border-radius: 12px;
+  padding:8px 10px;
+}
+.task-item.done span { text-decoration: line-through; opacity:.65; }
+.upload-gallery {
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap:8px;
+}
+.upload-tile {
+  border:1px solid rgba(244,210,125,.22);
+  border-radius: 10px;
+  overflow:hidden;
+  background:#0f0f12;
+  min-height: 80px;
+}
+.upload-tile img, .upload-tile video { width:100%; height:100%; object-fit:cover; display:block; }
+</style>
 </head>
 <body>
   <div class="app-shell">
@@ -295,6 +864,836 @@
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+const screens = [...document.querySelectorAll('.screen')];
+const profileKey = 'spathiProfileV1';
+const productivityKey = 'spathiProductivityV1';
+const gameState = {
+  difficulty: 'easy',
+  currentScreen: 'screen-login',
+  selectedRoom: 'room1',
+  profile: null,
+  settings: { music: false, sound: true },
+  match: null,
+  audioCtx: null,
+  missions: [
+    { id: 'play1', title: 'Luaj 1 ndeshje', reward: 15, target: 1 },
+    { id: 'win1', title: 'Fito 1 ndeshje', reward: 25, target: 1 },
+    { id: 'spades5', title: 'Kap 5 spathi gjithsej', reward: 20, target: 5 },
+  ],
+  productivity: {
+    tasks: [],
+    memory: '',
+    uploads: [],
+    timer: { running: false, total: 25 * 60, remaining: 25 * 60, intervalId: null }
+  },
+  shop: {
+    tables: [
+      { id: 'table_classic', name: 'Tavolina Klasike', price: 0, type: 'tables', preview: 'green' },
+      { id: 'table_red', name: 'Tavolina Neon Red', price: 120, type: 'tables', preview: 'red' },
+      { id: 'table_gold', name: 'Tavolina Gold Elite', price: 220, type: 'tables', preview: 'gold' },
+    ],
+    backs: [
+      { id: 'back_classic', name: 'Kartat Klasike', price: 0, type: 'backs', preview: 'red' },
+      { id: 'back_shadow', name: 'Kartat Shadow', price: 90, type: 'backs', preview: 'green' },
+      { id: 'back_gold', name: 'Kartat Gold', price: 160, type: 'backs', preview: 'gold' },
+    ],
+    frames: [
+      { id: 'frame_classic', name: 'Kornizë Klasike', price: 0, type: 'frames', preview: 'green' },
+      { id: 'frame_ruby', name: 'Kornizë Ruby', price: 110, type: 'frames', preview: 'red' },
+      { id: 'frame_royal', name: 'Kornizë Royal', price: 180, type: 'frames', preview: 'gold' },
+    ]
+  }
+};
+
+const el = id => document.getElementById(id);
+
+const roomCpuNames = {
+  room1: 'Royal CPU',
+  room2: 'Boss CPU',
+  room3: 'Classic CPU',
+  room4: 'Night CPU'
+};
+
+
+function defaultProfile(name = '', age = '') {
+  return {
+    name,
+    age,
+    coins: 100,
+    wins: 0,
+    losses: 0,
+    level: 1,
+    xp: 0,
+    gamesPlayed: 0,
+    stats: { spadesCaptured: 0, missions: { play1: 0, win1: 0, spades5: 0 } },
+    owned: { tables: ['table_classic'], backs: ['back_classic'], frames: ['frame_classic'] },
+    equipped: { tables: 'table_classic', backs: 'back_classic', frames: 'frame_classic' }
+  };
+}
+
+function saveProfile() {
+  localStorage.setItem(profileKey, JSON.stringify(gameState.profile));
+}
+
+function loadProductivity() {
+  try {
+    const raw = localStorage.getItem(productivityKey);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    gameState.productivity.tasks = Array.isArray(data.tasks) ? data.tasks : [];
+    gameState.productivity.memory = typeof data.memory === 'string' ? data.memory : '';
+    gameState.productivity.uploads = Array.isArray(data.uploads) ? data.uploads : [];
+    if (typeof data.timerSeconds === 'number' && data.timerSeconds > 0) {
+      gameState.productivity.timer.total = data.timerSeconds;
+      gameState.productivity.timer.remaining = data.timerSeconds;
+    }
+  } catch {}
+}
+
+function saveProductivity() {
+  const p = gameState.productivity;
+  localStorage.setItem(productivityKey, JSON.stringify({
+    tasks: p.tasks,
+    memory: p.memory,
+    uploads: p.uploads.slice(0, 24),
+    timerSeconds: p.timer.total
+  }));
+}
+
+function loadProfile() {
+  try {
+    const raw = localStorage.getItem(profileKey);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function showScreen(id) {
+  screens.forEach(s => s.classList.toggle('active', s.id === id));
+  gameState.currentScreen = id;
+}
+
+function toast(message) {
+  const t = el('toast');
+  t.textContent = message;
+  t.classList.add('show');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+function beep(freq = 520, length = 0.08, type = 'sine', volume = 0.02) {
+  if (!gameState.settings.sound) return;
+  try {
+    if (!gameState.audioCtx) gameState.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = gameState.audioCtx;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type; osc.frequency.value = freq;
+    gain.gain.value = volume;
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + length);
+  } catch {}
+}
+
+function setProfileUI() {
+  const p = gameState.profile;
+  if (!p) return;
+  el('avatarCircle').textContent = p.name?.slice(0,1)?.toUpperCase() || 'S';
+  el('profileName').textContent = p.name;
+  el('profileAge').textContent = `Mosha: ${p.age}`;
+  el('coinsValue').textContent = p.coins;
+  el('gameCoinsValue').textContent = p.coins;
+  el('levelValue').textContent = p.level;
+  el('winsValue').textContent = p.wins;
+  el('lossesValue').textContent = p.losses;
+  el('leaderCoins').textContent = p.coins;
+  el('leaderWins').textContent = p.wins;
+  el('leaderLevel').textContent = p.level;
+  el('playerHudName').textContent = p.name;
+  applyCosmetics();
+  applyRoomTheme();
+}
+
+function applyRoomTheme() {
+  const table = el('pokerTable');
+  if (!table) return;
+  table.classList.remove('room1-theme','room2-theme','room3-theme','room4-theme');
+  table.classList.add(`${gameState.selectedRoom}-theme`);
+}
+
+function gainCoins(amount, reason = '') {
+  gameState.profile.coins += amount;
+  saveProfile();
+  setProfileUI();
+  if (amount > 0) toast(`Fitove +${amount} coins${reason ? ' • ' + reason : ''}`);
+}
+
+function addXP(amount) {
+  const p = gameState.profile;
+  p.xp += amount;
+  while (p.xp >= p.level * 100) {
+    p.xp -= p.level * 100;
+    p.level += 1;
+    toast(`Niveli u rrit! Tani je niveli ${p.level}`);
+    beep(740, 0.1, 'triangle', 0.03);
+  }
+  saveProfile();
+  setProfileUI();
+}
+
+function progressMission(id, amount = 1) {
+  const p = gameState.profile;
+  p.stats.missions[id] = (p.stats.missions[id] || 0) + amount;
+  const mission = gameState.missions.find(m => m.id === id);
+  if (mission && p.stats.missions[id] === mission.target) {
+    gainCoins(mission.reward, `Mision: ${mission.title}`);
+  }
+  saveProfile();
+  renderMissions();
+}
+
+function renderMissions() {
+  const box = el('missionsList');
+  const p = gameState.profile;
+  if (!p) return;
+  box.innerHTML = '';
+  gameState.missions.forEach(m => {
+    const current = p.stats.missions[m.id] || 0;
+    const done = current >= m.target;
+    const div = document.createElement('div');
+    div.className = 'mission-item';
+    div.innerHTML = `
+      <div class="item-row"><strong>${m.title}</strong><span>${done ? '✅' : '⏳'}</span></div>
+      <div class="item-row"><span>Përparimi</span><strong>${Math.min(current, m.target)}/${m.target}</strong></div>
+      <div class="item-row"><span>Shpërblimi</span><strong>🪙 ${m.reward}</strong></div>
+    `;
+    box.appendChild(div);
+  });
+}
+
+function renderShop(tab = 'tables') {
+  const box = el('shopItems');
+  box.innerHTML = '';
+  const p = gameState.profile;
+  gameState.shop[tab].forEach(item => {
+    const owned = p.owned[tab].includes(item.id);
+    const equipped = p.equipped[tab] === item.id;
+    const card = document.createElement('div');
+    card.className = 'shop-item';
+    card.innerHTML = `
+      <div class="preview ${item.preview}"></div>
+      <div class="item-row"><strong>${item.name}</strong><span>🪙 ${item.price}</span></div>
+      <div class="item-row">
+        <span>${owned ? 'E blerë' : 'Nuk e ke'}</span>
+        <button class="secondary-btn small shop-action">${equipped ? 'Aktive' : owned ? 'Përdor' : 'Blej'}</button>
+      </div>
+    `;
+    card.querySelector('.shop-action').addEventListener('click', () => buyOrEquip(tab, item));
+    box.appendChild(card);
+  });
+}
+
+function buyOrEquip(tab, item) {
+  const p = gameState.profile;
+  const owned = p.owned[tab].includes(item.id);
+  if (!owned) {
+    if (p.coins < item.price) {
+      toast('Nuk ke coins të mjaftueshme.');
+      beep(220, .12, 'sawtooth', .02);
+      return;
+    }
+    p.coins -= item.price;
+    p.owned[tab].push(item.id);
+    toast(`Bleve ${item.name}`);
+    beep(640, .09, 'triangle', .03);
+  }
+  p.equipped[tab] = item.id;
+  saveProfile();
+  setProfileUI();
+  renderShop(tab);
+}
+
+function applyCosmetics() {
+  const p = gameState.profile;
+  if (!p) return;
+  const table = el('pokerTable');
+  table.style.background = '';
+  const eqTable = p.equipped.tables;
+  if (eqTable === 'table_red') {
+    table.style.background = 'radial-gradient(circle at center, rgba(255,255,255,.05), transparent 28%), linear-gradient(180deg, #4d1212, #240808)';
+  } else if (eqTable === 'table_gold') {
+    table.style.background = 'radial-gradient(circle at center, rgba(255,255,255,.05), transparent 28%), linear-gradient(180deg, #5b4b18, #1e1605)';
+  }
+  const avatar = el('avatarCircle');
+  avatar.style.boxShadow = '0 0 20px rgba(255, 87, 87, .2)';
+  if (p.equipped.frames === 'frame_ruby') avatar.style.boxShadow = '0 0 24px rgba(255, 60, 60, .4)';
+  if (p.equipped.frames === 'frame_royal') avatar.style.boxShadow = '0 0 28px rgba(244,210,125,.38)';
+}
+
+
+function formatTimer(seconds) {
+  const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+  const s = String(seconds % 60).padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+function renderTimer() {
+  const t = gameState.productivity.timer;
+  const display = el('timerDisplay');
+  const btn = el('timerStartPauseBtn');
+  if (!display || !btn) return;
+  display.textContent = formatTimer(t.remaining);
+  btn.textContent = t.running ? 'Pause' : 'Start';
+}
+
+function stopTimerInterval() {
+  const t = gameState.productivity.timer;
+  if (t.intervalId) clearInterval(t.intervalId);
+  t.intervalId = null;
+  t.running = false;
+}
+
+function toggleTimer() {
+  const t = gameState.productivity.timer;
+  if (t.running) {
+    stopTimerInterval();
+    renderTimer();
+    return;
+  }
+  t.running = true;
+  t.intervalId = setInterval(() => {
+    if (t.remaining <= 0) {
+      stopTimerInterval();
+      toast('Timer përfundoi!');
+      beep(740, 0.14, 'triangle', 0.04);
+      renderTimer();
+      return;
+    }
+    t.remaining -= 1;
+    renderTimer();
+  }, 1000);
+  renderTimer();
+}
+
+function resetTimer() {
+  const t = gameState.productivity.timer;
+  stopTimerInterval();
+  t.remaining = t.total;
+  renderTimer();
+}
+
+function renderTasks() {
+  const list = el('taskList');
+  if (!list) return;
+  list.innerHTML = '';
+  gameState.productivity.tasks.forEach((task, index) => {
+    const li = document.createElement('li');
+    li.className = `task-item ${task.done ? 'done' : ''}`;
+    li.innerHTML = `<span>${task.text}</span><div><button class="secondary-btn small" data-action="toggle">${task.done ? 'Undo' : 'Done'}</button> <button class="secondary-btn small" data-action="delete">X</button></div>`;
+    li.querySelector('[data-action="toggle"]').addEventListener('click', () => {
+      task.done = !task.done;
+      saveProductivity();
+      renderTasks();
+    });
+    li.querySelector('[data-action="delete"]').addEventListener('click', () => {
+      gameState.productivity.tasks.splice(index, 1);
+      saveProductivity();
+      renderTasks();
+    });
+    list.appendChild(li);
+  });
+}
+
+function renderUploads() {
+  const box = el('uploadGallery');
+  if (!box) return;
+  box.innerHTML = '';
+  gameState.productivity.uploads.forEach(item => {
+    const tile = document.createElement('div');
+    tile.className = 'upload-tile';
+    tile.innerHTML = item.type.startsWith('video/')
+      ? `<video src="${item.data}" muted controls></video>`
+      : `<img src="${item.data}" alt="${item.name}" />`;
+    box.appendChild(tile);
+  });
+}
+
+function setupProductivityUI() {
+  const memoryInput = el('memoryInput');
+  if (memoryInput) memoryInput.value = gameState.productivity.memory || '';
+  renderTasks();
+  renderUploads();
+  renderTimer();
+}
+
+function cardLabel(rank) {
+  return ({ 1:'A',11:'J',12:'Q',13:'K' }[rank] || String(rank));
+}
+function suitSymbol(suit) {
+  return ({ spades:'♠', hearts:'♥', diamonds:'♦', clubs:'♣' }[suit]);
+}
+function suitClass(suit) {
+  return (suit === 'hearts' || suit === 'diamonds') ? 'red-suit' : 'black-suit';
+}
+function rankValueForSum(rank) {
+  return rank > 10 ? null : rank;
+}
+function cardPointsValue(card) { return rankValueForSum(card.rank); }
+
+function createDeck() {
+  const suits = ['spades', 'hearts', 'diamonds', 'clubs'];
+  const deck = [];
+  suits.forEach(suit => {
+    for (let rank = 1; rank <= 13; rank++) deck.push({ suit, rank, id: `${suit}-${rank}-${Math.random().toString(36).slice(2,6)}` });
+  });
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  return deck;
+}
+
+function findCaptureSets(tableCards, target) {
+  const eligible = tableCards.filter(c => cardPointsValue(c) !== null && cardPointsValue(c) <= 10);
+  const results = [];
+  const n = eligible.length;
+  function bt(start, sum, arr, usedIds) {
+    if (sum === target && arr.length) {
+      results.push([...arr]);
+      return;
+    }
+    if (sum >= target) return;
+    for (let i = start; i < n; i++) {
+      const c = eligible[i];
+      if (usedIds.has(c.id)) continue;
+      usedIds.add(c.id);
+      arr.push(c);
+      bt(i + 1, sum + cardPointsValue(c), arr, usedIds);
+      arr.pop();
+      usedIds.delete(c.id);
+    }
+  }
+  bt(0, 0, [], new Set());
+  return results;
+}
+
+function getPossibleCaptures(card, tableCards) {
+  const captures = [];
+  tableCards.forEach(tc => { if (tc.rank === card.rank) captures.push([tc]); });
+  const val = cardPointsValue(card);
+  if (val !== null && val <= 10) captures.push(...findCaptureSets(tableCards, val));
+  // unique by ids string
+  const seen = new Set();
+  return captures.filter(set => {
+    const key = set.map(c => c.id).sort().join('|');
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function bestCapture(captures) {
+  if (!captures.length) return null;
+  return captures.sort((a, b) => scoreCaptureSet(b) - scoreCaptureSet(a))[0];
+}
+
+function scoreCaptureSet(set) {
+  return set.length * 10 + set.filter(c => c.suit === 'spades').length * 3 + set.some(c => c.suit === 'spades' && c.rank === 2) * 12 + set.some(c => c.suit === 'diamonds' && c.rank === 10) * 10;
+}
+
+function startMatch() {
+  const difficultyLabel = { easy: 'Lehtë', medium: 'Mesatare', hard: 'Vështirë' };
+  const cpuBaseName = roomCpuNames[gameState.selectedRoom || 'room1'] || 'CPU';
+  const cpuDisplayName = `${cpuBaseName} • ${difficultyLabel[gameState.difficulty]}`;
+  toast(`Hyre në ${cpuBaseName}. Loja po nis...`);
+  el('cpuName').textContent = cpuDisplayName;
+  el('cpuZoneName').textContent = cpuDisplayName;
+  const deck = createDeck();
+  const tableCards = [deck.pop(), deck.pop(), deck.pop(), deck.pop()];
+  gameState.match = {
+    deck,
+    tableCards,
+    playerHand: [],
+    cpuHand: [],
+    captured: { player: [], cpu: [] },
+    matchScore: { player: 0, cpu: 0 },
+    turn: 'player',
+    lastCapturer: null,
+    selectedId: null,
+    waitingCpu: false,
+  };
+  dealHandsIfNeeded();
+  renderGame();
+  applyRoomTheme();
+  showScreen('screen-game');
+  progressMission('play1', 1);
+}
+
+function dealHandsIfNeeded() {
+  const m = gameState.match;
+  if (!m.playerHand.length && !m.cpuHand.length && m.deck.length) {
+    for (let i = 0; i < 4; i++) {
+      m.playerHand.push(m.deck.pop());
+      m.cpuHand.push(m.deck.pop());
+    }
+    beep(450, .06, 'square', .01);
+  }
+}
+
+function renderCard(card, hidden = false, interactive = false) {
+  const div = document.createElement('div');
+  div.className = `card dealt ${hidden ? 'card-back' : ''} ${interactive ? 'playable' : ''}`;
+  if (hidden) {
+    div.innerHTML = `<div>♠</div>`;
+    return div;
+  }
+  div.innerHTML = `
+    <div class="card-value-top ${suitClass(card.suit)}">${cardLabel(card.rank)}</div>
+    <div class="card-suit ${suitClass(card.suit)}">${suitSymbol(card.suit)}</div>
+    <div class="card-value-bottom ${suitClass(card.suit)}">${cardLabel(card.rank)}</div>
+  `;
+  return div;
+}
+
+function renderGame() {
+  const m = gameState.match;
+  if (!m) return;
+  const playerRow = el('playerHandRow');
+  const cpuRow = el('cpuHandRow');
+  const tableRow = el('tableCardsRow');
+  const table = el('pokerTable');
+  playerRow.innerHTML = '';
+  cpuRow.innerHTML = '';
+  tableRow.innerHTML = '';
+  table.classList.toggle('player-turn', m.turn === 'player');
+  table.classList.toggle('cpu-turn', m.turn === 'cpu');
+  m.cpuHand.forEach((_, i) => {
+    const card = renderCard({}, true);
+    card.style.animationDelay = `${i * 60}ms`;
+    cpuRow.appendChild(card);
+  });
+  m.tableCards.forEach((card, i) => {
+    const c = renderCard(card, false, false);
+    c.style.animationDelay = `${i * 55}ms`;
+    tableRow.appendChild(c);
+  });
+  m.playerHand.forEach((card, i) => {
+    const c = renderCard(card, false, true);
+    c.style.animationDelay = `${i * 70}ms`;
+    if (m.selectedId === card.id) c.classList.add('selected');
+    c.addEventListener('click', () => playPlayerCard(card.id));
+    playerRow.appendChild(c);
+  });
+  updateHud();
+}
+
+function updateHud() {
+  const m = gameState.match;
+  el('playerMatchScore').textContent = m.matchScore.player;
+  el('cpuMatchScore').textContent = m.matchScore.cpu;
+  el('playerCapturedCount').textContent = m.captured.player.length;
+  el('cpuCapturedCount').textContent = m.captured.cpu.length;
+  el('playerSpadesCount').textContent = m.captured.player.filter(c => c.suit === 'spades').length;
+  el('cpuSpadesCount').textContent = m.captured.cpu.filter(c => c.suit === 'spades').length;
+  el('turnBadge').textContent = m.turn === 'player' ? 'Radha jote!' : 'Radha e CPU';
+  el('gameInfo').textContent = m.turn === 'player' ? 'Zgjidh letrën më të fortë dhe godit tavolinën.' : 'Kompjuteri po mendon lëvizjen më të mirë...';
+  const hint = el('captureHint');
+  if (hint) hint.textContent = m.turn === 'player' ? 'Shiko nëse mund të kapësh kombinime deri në 10.' : 'CPU po llogarit kapjen më të mirë.';
+}
+
+function playPlayerCard(cardId) {
+  const m = gameState.match;
+  if (!m || m.turn !== 'player' || m.waitingCpu) return;
+  const idx = m.playerHand.findIndex(c => c.id === cardId);
+  if (idx < 0) return;
+  const card = m.playerHand[idx];
+  playCard('player', card, idx);
+}
+
+function playCard(side, card, handIndex) {
+  const m = gameState.match;
+  const hand = side === 'player' ? m.playerHand : m.cpuHand;
+  hand.splice(handIndex, 1);
+  const possible = getPossibleCaptures(card, m.tableCards);
+  const chosen = bestCapture(possible);
+  if (chosen) {
+    m.captured[side].push(card, ...chosen);
+    m.tableCards = m.tableCards.filter(c => !chosen.some(x => x.id === c.id));
+    m.lastCapturer = side;
+    toast(`${side === 'player' ? gameState.profile.name : el('cpuName').textContent} kapi ${chosen.length} letra!`);
+    beep(660, .08, 'triangle', .025);
+  } else {
+    m.tableCards.push(card);
+    beep(360, .06, 'square', .02);
+  }
+  if (side === 'player') {
+    m.turn = 'cpu';
+    renderGame();
+    maybeAdvanceOrCpu();
+  } else {
+    m.turn = 'player';
+    renderGame();
+    maybeAdvanceRound();
+  }
+}
+
+function maybeAdvanceOrCpu() {
+  maybeAdvanceRound();
+  if (gameState.match && gameState.match.turn === 'cpu') cpuTurn();
+}
+
+function maybeAdvanceRound() {
+  const m = gameState.match;
+  if (!m.playerHand.length && !m.cpuHand.length) {
+    if (m.deck.length) {
+      dealHandsIfNeeded();
+      renderGame();
+      if (m.turn === 'cpu') cpuTurn();
+      return;
+    }
+    if (m.tableCards.length && m.lastCapturer) {
+      m.captured[m.lastCapturer].push(...m.tableCards);
+      m.tableCards = [];
+    }
+    finishDeal();
+  }
+}
+
+function finishDeal() {
+  const m = gameState.match;
+  const p = calcDealPoints(m.captured.player, m.captured.cpu);
+  m.matchScore.player += p.player;
+  m.matchScore.cpu += p.cpu;
+  renderGame();
+  if (m.captured.player.filter(c => c.suit === 'spades').length) progressMission('spades5', m.captured.player.filter(c => c.suit === 'spades').length);
+  if (m.matchScore.player >= 21 || m.matchScore.cpu >= 21) {
+    endMatch();
+    return;
+  }
+  setTimeout(() => {
+    toast(`Dora mbaroi • Ti ${p.player} pikë • CPU ${p.cpu} pikë`);
+    const deck = createDeck();
+    gameState.match = {
+      deck,
+      tableCards: [deck.pop(), deck.pop(), deck.pop(), deck.pop()],
+      playerHand: [],
+      cpuHand: [],
+      captured: { player: [], cpu: [] },
+      matchScore: { ...m.matchScore },
+      turn: 'player',
+      lastCapturer: null,
+      selectedId: null,
+      waitingCpu: false,
+    };
+    dealHandsIfNeeded();
+    renderGame();
+  }, 900);
+}
+
+function calcDealPoints(playerCards, cpuCards) {
+  const playerCount = playerCards.length;
+  const cpuCount = cpuCards.length;
+  const playerSpades = playerCards.filter(c => c.suit === 'spades').length;
+  const cpuSpades = cpuCards.filter(c => c.suit === 'spades').length;
+  let player = 0, cpu = 0;
+  if (playerCount > cpuCount && playerCount > 26) player += 2;
+  else if (cpuCount > playerCount && cpuCount > 26) cpu += 2;
+  else if (playerCount === 26 && cpuCount === 26) { player += 1; cpu += 1; }
+  if (playerSpades > cpuSpades) player += 1;
+  else if (cpuSpades > playerSpades) cpu += 1;
+  if (playerCards.some(c => c.suit === 'spades' && c.rank === 2)) player += 1;
+  else cpu += cpuCards.some(c => c.suit === 'spades' && c.rank === 2) ? 1 : 0;
+  if (playerCards.some(c => c.suit === 'diamonds' && c.rank === 10)) player += 1;
+  else cpu += cpuCards.some(c => c.suit === 'diamonds' && c.rank === 10) ? 1 : 0;
+  return { player, cpu };
+}
+
+function cpuTurn() {
+  const m = gameState.match;
+  if (!m || m.waitingCpu) return;
+  m.waitingCpu = true;
+  renderGame();
+  const delay = gameState.difficulty === 'easy' ? 750 : gameState.difficulty === 'medium' ? 1000 : 1250;
+  setTimeout(() => {
+    const idx = chooseCpuMove();
+    const card = m.cpuHand[idx];
+    m.waitingCpu = false;
+    playCard('cpu', card, idx);
+  }, delay);
+}
+
+function chooseCpuMove() {
+  const m = gameState.match;
+  const options = m.cpuHand.map((card, idx) => ({ card, idx, captures: getPossibleCaptures(card, m.tableCards) }));
+  if (gameState.difficulty === 'easy') {
+    const capturers = options.filter(o => o.captures.length);
+    const pool = capturers.length ? capturers : options;
+    return pool[Math.floor(Math.random() * pool.length)].idx;
+  }
+  const scored = options.map(o => {
+    let score = 0;
+    const best = bestCapture(o.captures);
+    if (best) score += scoreCaptureSet(best);
+    if (o.card.suit === 'spades') score += 2;
+    if (o.card.suit === 'spades' && o.card.rank === 2) score += 8;
+    if (o.card.suit === 'diamonds' && o.card.rank === 10) score += 8;
+    if (!best && rankValueForSum(o.card.rank) && rankValueForSum(o.card.rank) <= 4) score += 1;
+    return { idx: o.idx, score };
+  });
+  scored.sort((a,b) => b.score - a.score);
+  if (gameState.difficulty === 'medium') return scored[0].idx;
+  // hard: if tie, prefer preserving face cards less, or higher impact
+  return scored[0].idx;
+}
+
+function endMatch() {
+  const m = gameState.match;
+  const playerWon = m.matchScore.player > m.matchScore.cpu;
+  const diffRewards = { easy: 15, medium: 25, hard: 40 };
+  gameState.profile.gamesPlayed += 1;
+  if (playerWon) {
+    gameState.profile.wins += 1;
+    gainCoins(diffRewards[gameState.difficulty], 'Fitore ndaj CPU');
+    addXP(45 + (gameState.difficulty === 'hard' ? 25 : gameState.difficulty === 'medium' ? 15 : 0));
+    progressMission('win1', 1);
+  } else {
+    gameState.profile.losses += 1;
+    addXP(10);
+  }
+  saveProfile();
+  setProfileUI();
+  el('resultTitle').textContent = playerWon ? 'Fitore!' : 'Humbje';
+  el('resultText').textContent = `Rezultati final: ${m.matchScore.player} - ${m.matchScore.cpu}`;
+  el('resultModal').classList.remove('hidden');
+}
+
+function closeModalToHome() {
+  el('resultModal').classList.add('hidden');
+  showScreen('screen-home');
+}
+
+function setupEvents() {
+  el('saveProfileBtn').addEventListener('click', () => {
+    const name = el('nicknameInput').value.trim();
+    const age = el('ageInput').value.trim();
+    if (!name) return el('loginError').textContent = 'Shkruaj pseudonimin.';
+    if (!age) return el('loginError').textContent = 'Shkruaj moshën.';
+    gameState.profile = defaultProfile(name, age);
+    saveProfile();
+    setProfileUI();
+    renderMissions();
+    renderShop();
+    showScreen('screen-home');
+  });
+  el('resetProfileBtn').addEventListener('click', () => {
+    if (!confirm('Ta fshij profilin lokal?')) return;
+    localStorage.removeItem(profileKey);
+    location.reload();
+  });
+  el('openCasualBtn').addEventListener('click', () => showScreen('screen-casual'));
+  el('openShopBtn').addEventListener('click', () => { renderShop(document.querySelector('.shop-tab.active')?.dataset.shopTab || 'tables'); showScreen('screen-shop'); });
+  el('openMissionsBtn').addEventListener('click', () => { renderMissions(); showScreen('screen-missions'); });
+  el('openLeaderboardBtn').addEventListener('click', () => showScreen('screen-leaderboard'));
+  el('openRulesBtn').addEventListener('click', () => showScreen('screen-rules'));
+  el('openProductivityBtn').addEventListener('click', () => { setupProductivityUI(); showScreen('screen-productivity'); });
+  document.querySelectorAll('[data-back-home]').forEach(btn => btn.addEventListener('click', () => showScreen('screen-home')));
+  document.querySelectorAll('.difficulty-btn').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('.difficulty-btn').forEach(x => x.classList.remove('active'));
+    btn.classList.add('active');
+    gameState.difficulty = btn.dataset.difficulty;
+  }));
+  el('startGameBtn').addEventListener('click', startMatch);
+  el('playAgainBtn').addEventListener('click', () => { el('resultModal').classList.add('hidden'); startMatch(); });
+  el('modalHomeBtn').addEventListener('click', closeModalToHome);
+  document.querySelectorAll('.shop-tab').forEach(tab => tab.addEventListener('click', () => {
+    document.querySelectorAll('.shop-tab').forEach(x => x.classList.remove('active'));
+    tab.classList.add('active');
+    renderShop(tab.dataset.shopTab);
+  }));
+  el('musicToggle').addEventListener('click', () => {
+    gameState.settings.music = !gameState.settings.music;
+    toast(gameState.settings.music ? 'Muzika u aktivizua (placeholder).' : 'Muzika u ndal.');
+  });
+  el('addTaskBtn').addEventListener('click', () => {
+    const text = el('taskInput').value.trim();
+    if (!text) return;
+    gameState.productivity.tasks.unshift({ text, done: false });
+    el('taskInput').value = '';
+    saveProductivity();
+    renderTasks();
+  });
+  el('saveMemoryBtn').addEventListener('click', () => {
+    gameState.productivity.memory = el('memoryInput').value.trim();
+    saveProductivity();
+    el('memoryStatus').textContent = 'U ruajt me sukses.';
+  });
+  el('mediaUploadInput').addEventListener('change', async (event) => {
+    const files = Array.from(event.target.files || []).slice(0, 6);
+    for (const file of files) {
+      if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) continue;
+      const data = await new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+      gameState.productivity.uploads.unshift({ name: file.name, type: file.type, data });
+    }
+    gameState.productivity.uploads = gameState.productivity.uploads.slice(0, 12);
+    saveProductivity();
+    renderUploads();
+    event.target.value = '';
+  });
+  el('timerStartPauseBtn').addEventListener('click', toggleTimer);
+  el('timerResetBtn').addEventListener('click', resetTimer);
+  document.querySelectorAll('.timer-preset').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('.timer-preset').forEach(x => x.classList.remove('active'));
+    btn.classList.add('active');
+    const seconds = Number(btn.dataset.minutes || 25) * 60;
+    gameState.productivity.timer.total = seconds;
+    gameState.productivity.timer.remaining = seconds;
+    stopTimerInterval();
+    saveProductivity();
+    renderTimer();
+  }));
+  el('soundToggle').addEventListener('click', () => {
+    gameState.settings.sound = !gameState.settings.sound;
+    toast(gameState.settings.sound ? 'Zëri u aktivizua.' : 'Zëri u ndal.');
+  });
+}
+
+function init() {
+  loadProductivity();
+  setupEvents();
+  const existing = loadProfile();
+  if (existing) {
+    gameState.profile = existing;
+    setProfileUI();
+    renderMissions();
+    renderShop();
+    showScreen('screen-home');
+  } else {
+    showScreen('screen-login');
+  }
+}
+
+init();
+
+window.addEventListener('beforeunload', () => stopTimerInterval());
+
+document.querySelectorAll('.room-card').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.room-card').forEach(x => x.classList.remove('active'));
+    btn.classList.add('active');
+    gameState.selectedRoom = btn.dataset.room;
+    const cpuName = roomCpuNames[gameState.selectedRoom] || 'CPU';
+    toast(`Zgjodhe ${btn.querySelector('.room-badge').textContent} • Kundër ${cpuName}`);
+    applyRoomTheme();
+  });
+});
+</script>
 </body>
 </html>
