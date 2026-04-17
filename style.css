@@ -496,3 +496,73 @@ button, input { font: inherit; }
   .table-lights span { width: 9px; height: 9px; }
   .center-subtitle { font-size: .82rem; }
 }
+
+
+.productivity-grid {
+  margin-top: 16px;
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap:14px;
+}
+.productivity-card {
+  background: rgba(18,8,8,.8);
+  border:1px solid rgba(255,94,94,.16);
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+  display:grid;
+  gap:10px;
+}
+.timer-display {
+  font-size: 2.1rem;
+  letter-spacing: 2px;
+  text-align:center;
+  color: var(--gold);
+}
+.timer-controls, .timer-presets, .task-form {
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.task-form input,
+#memoryInput,
+#mediaUploadInput {
+  width:100%;
+  border-radius: 12px;
+  border:1px solid rgba(255,102,102,.25);
+  background:#140607;
+  color:var(--text);
+  padding:10px 12px;
+}
+#memoryInput { min-height: 130px; resize: vertical; }
+.task-list {
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:grid;
+  gap:8px;
+}
+.task-item {
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  align-items:center;
+  background: rgba(10,22,18,.45);
+  border:1px solid rgba(244,210,125,.14);
+  border-radius: 12px;
+  padding:8px 10px;
+}
+.task-item.done span { text-decoration: line-through; opacity:.65; }
+.upload-gallery {
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap:8px;
+}
+.upload-tile {
+  border:1px solid rgba(244,210,125,.22);
+  border-radius: 10px;
+  overflow:hidden;
+  background:#0f0f12;
+  min-height: 80px;
+}
+.upload-tile img, .upload-tile video { width:100%; height:100%; object-fit:cover; display:block; }
