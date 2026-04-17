@@ -70,6 +70,7 @@
               <button id="openMissionsBtn" class="menu-tile">🎯<span>Misionet</span></button>
               <button id="openLeaderboardBtn" class="menu-tile">🏆<span>Renditja</span></button>
               <button id="openRulesBtn" class="menu-tile">📜<span>Rregullat</span></button>
+              <button id="openProductivityBtn" class="menu-tile">⚡<span>Productivity Hub</span></button>
             </div>
           </section>
         </div>
@@ -207,6 +208,56 @@
         </div>
       </section>
 
+
+      <section id="screen-productivity" class="screen">
+        <div class="center-card wide-card glow-red">
+          <div class="modal-head">
+            <h2>Productivity Hub</h2>
+            <button data-back-home class="secondary-btn small">Mbyll</button>
+          </div>
+          <p class="muted">Timer, task list, memory notes dhe file upload për foto/video (lokalisht në browser).</p>
+
+          <div class="productivity-grid">
+            <article class="productivity-card">
+              <h3>⏱️ Timer</h3>
+              <div class="timer-display" id="timerDisplay">25:00</div>
+              <div class="timer-controls">
+                <button id="timerStartPauseBtn" class="secondary-btn small">Start</button>
+                <button id="timerResetBtn" class="secondary-btn small">Reset</button>
+              </div>
+              <div class="timer-presets">
+                <button class="difficulty-btn timer-preset active" data-minutes="25">25 min</button>
+                <button class="difficulty-btn timer-preset" data-minutes="15">15 min</button>
+                <button class="difficulty-btn timer-preset" data-minutes="5">5 min</button>
+              </div>
+            </article>
+
+            <article class="productivity-card">
+              <h3>✅ Task List</h3>
+              <div class="task-form">
+                <input id="taskInput" type="text" placeholder="Shto një task..." maxlength="120" />
+                <button id="addTaskBtn" class="secondary-btn small">Shto</button>
+              </div>
+              <ul id="taskList" class="task-list"></ul>
+            </article>
+
+            <article class="productivity-card">
+              <h3>🧠 Memory Drive</h3>
+              <textarea id="memoryInput" rows="6" placeholder="Shkruaj ide, memo, linke..."></textarea>
+              <button id="saveMemoryBtn" class="secondary-btn small">Ruaj shënimin</button>
+              <p id="memoryStatus" class="muted small-note"></p>
+            </article>
+
+            <article class="productivity-card">
+              <h3>📁 Google-style File Upload</h3>
+              <p class="muted">Ngarko foto/video dhe shiko preview. Ruhet vetëm lista në këtë browser.</p>
+              <input id="mediaUploadInput" type="file" accept="image/*,video/*" multiple />
+              <div id="uploadGallery" class="upload-gallery"></div>
+              <a class="muted" href="https://drive.google.com" target="_blank" rel="noopener">Hap Google Drive ↗</a>
+            </article>
+          </div>
+        </div>
+      </section>
       <section id="screen-rules" class="screen">
         <div class="center-card wide-card glow-gold">
           <div class="modal-head">

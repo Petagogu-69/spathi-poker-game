@@ -1,5 +1,6 @@
 const screens = [...document.querySelectorAll('.screen')];
 const profileKey = 'spathiProfileV1';
+const productivityKey = 'spathiProductivityV1';
 const gameState = {
   difficulty: 'easy',
   currentScreen: 'screen-login',
@@ -13,6 +14,12 @@ const gameState = {
     { id: 'win1', title: 'Fito 1 ndeshje', reward: 25, target: 1 },
     { id: 'spades5', title: 'Kap 5 spathi gjithsej', reward: 20, target: 5 },
   ],
+  productivity: {
+    tasks: [],
+    memory: '',
+    uploads: [],
+    timer: { running: false, total: 25 * 60, remaining: 25 * 60, intervalId: null }
+  },
   shop: {
     tables: [
       { id: 'table_classic', name: 'Tavolina Klasike', price: 0, type: 'tables', preview: 'green' },
@@ -60,6 +67,31 @@ function defaultProfile(name = '', age = '') {
 
 function saveProfile() {
   localStorage.setItem(profileKey, JSON.stringify(gameState.profile));
+}
+
+function loadProductivity() {
+  try {
+    const raw = localStorage.getItem(productivityKey);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    gameState.productivity.tasks = Array.isArray(data.tasks) ? data.tasks : [];
+    gameState.productivity.memory = typeof data.memory === 'string' ? data.memory : '';
+    gameState.productivity.uploads = Array.isArray(data.uploads) ? data.uploads : [];
+    if (typeof data.timerSeconds === 'number' && data.timerSeconds > 0) {
+      gameState.productivity.timer.total = data.timerSeconds;
+      gameState.productivity.timer.remaining = data.timerSeconds;
+    }
+  } catch {}
+}
+
+function saveProductivity() {
+  const p = gameState.productivity;
+  localStorage.setItem(productivityKey, JSON.stringify({
+    tasks: p.tasks,
+    memory: p.memory,
+    uploads: p.uploads.slice(0, 24),
+    timerSeconds: p.timer.total
+  }));
 }
 
 function loadProfile() {
@@ -233,6 +265,102 @@ function applyCosmetics() {
   avatar.style.boxShadow = '0 0 20px rgba(255, 87, 87, .2)';
   if (p.equipped.frames === 'frame_ruby') avatar.style.boxShadow = '0 0 24px rgba(255, 60, 60, .4)';
   if (p.equipped.frames === 'frame_royal') avatar.style.boxShadow = '0 0 28px rgba(244,210,125,.38)';
+}
+
+
+function formatTimer(seconds) {
+  const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+  const s = String(seconds % 60).padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+function renderTimer() {
+  const t = gameState.productivity.timer;
+  const display = el('timerDisplay');
+  const btn = el('timerStartPauseBtn');
+  if (!display || !btn) return;
+  display.textContent = formatTimer(t.remaining);
+  btn.textContent = t.running ? 'Pause' : 'Start';
+}
+
+function stopTimerInterval() {
+  const t = gameState.productivity.timer;
+  if (t.intervalId) clearInterval(t.intervalId);
+  t.intervalId = null;
+  t.running = false;
+}
+
+function toggleTimer() {
+  const t = gameState.productivity.timer;
+  if (t.running) {
+    stopTimerInterval();
+    renderTimer();
+    return;
+  }
+  t.running = true;
+  t.intervalId = setInterval(() => {
+    if (t.remaining <= 0) {
+      stopTimerInterval();
+      toast('Timer përfundoi!');
+      beep(740, 0.14, 'triangle', 0.04);
+      renderTimer();
+      return;
+    }
+    t.remaining -= 1;
+    renderTimer();
+  }, 1000);
+  renderTimer();
+}
+
+function resetTimer() {
+  const t = gameState.productivity.timer;
+  stopTimerInterval();
+  t.remaining = t.total;
+  renderTimer();
+}
+
+function renderTasks() {
+  const list = el('taskList');
+  if (!list) return;
+  list.innerHTML = '';
+  gameState.productivity.tasks.forEach((task, index) => {
+    const li = document.createElement('li');
+    li.className = `task-item ${task.done ? 'done' : ''}`;
+    li.innerHTML = `<span>${task.text}</span><div><button class="secondary-btn small" data-action="toggle">${task.done ? 'Undo' : 'Done'}</button> <button class="secondary-btn small" data-action="delete">X</button></div>`;
+    li.querySelector('[data-action="toggle"]').addEventListener('click', () => {
+      task.done = !task.done;
+      saveProductivity();
+      renderTasks();
+    });
+    li.querySelector('[data-action="delete"]').addEventListener('click', () => {
+      gameState.productivity.tasks.splice(index, 1);
+      saveProductivity();
+      renderTasks();
+    });
+    list.appendChild(li);
+  });
+}
+
+function renderUploads() {
+  const box = el('uploadGallery');
+  if (!box) return;
+  box.innerHTML = '';
+  gameState.productivity.uploads.forEach(item => {
+    const tile = document.createElement('div');
+    tile.className = 'upload-tile';
+    tile.innerHTML = item.type.startsWith('video/')
+      ? `<video src="${item.data}" muted controls></video>`
+      : `<img src="${item.data}" alt="${item.name}" />`;
+    box.appendChild(tile);
+  });
+}
+
+function setupProductivityUI() {
+  const memoryInput = el('memoryInput');
+  if (memoryInput) memoryInput.value = gameState.productivity.memory || '';
+  renderTasks();
+  renderUploads();
+  renderTimer();
 }
 
 function cardLabel(rank) {
@@ -604,6 +732,7 @@ function setupEvents() {
   el('openMissionsBtn').addEventListener('click', () => { renderMissions(); showScreen('screen-missions'); });
   el('openLeaderboardBtn').addEventListener('click', () => showScreen('screen-leaderboard'));
   el('openRulesBtn').addEventListener('click', () => showScreen('screen-rules'));
+  el('openProductivityBtn').addEventListener('click', () => { setupProductivityUI(); showScreen('screen-productivity'); });
   document.querySelectorAll('[data-back-home]').forEach(btn => btn.addEventListener('click', () => showScreen('screen-home')));
   document.querySelectorAll('.difficulty-btn').forEach(btn => btn.addEventListener('click', () => {
     document.querySelectorAll('.difficulty-btn').forEach(x => x.classList.remove('active'));
@@ -622,6 +751,47 @@ function setupEvents() {
     gameState.settings.music = !gameState.settings.music;
     toast(gameState.settings.music ? 'Muzika u aktivizua (placeholder).' : 'Muzika u ndal.');
   });
+  el('addTaskBtn').addEventListener('click', () => {
+    const text = el('taskInput').value.trim();
+    if (!text) return;
+    gameState.productivity.tasks.unshift({ text, done: false });
+    el('taskInput').value = '';
+    saveProductivity();
+    renderTasks();
+  });
+  el('saveMemoryBtn').addEventListener('click', () => {
+    gameState.productivity.memory = el('memoryInput').value.trim();
+    saveProductivity();
+    el('memoryStatus').textContent = 'U ruajt me sukses.';
+  });
+  el('mediaUploadInput').addEventListener('change', async (event) => {
+    const files = Array.from(event.target.files || []).slice(0, 6);
+    for (const file of files) {
+      if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) continue;
+      const data = await new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+      gameState.productivity.uploads.unshift({ name: file.name, type: file.type, data });
+    }
+    gameState.productivity.uploads = gameState.productivity.uploads.slice(0, 12);
+    saveProductivity();
+    renderUploads();
+    event.target.value = '';
+  });
+  el('timerStartPauseBtn').addEventListener('click', toggleTimer);
+  el('timerResetBtn').addEventListener('click', resetTimer);
+  document.querySelectorAll('.timer-preset').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('.timer-preset').forEach(x => x.classList.remove('active'));
+    btn.classList.add('active');
+    const seconds = Number(btn.dataset.minutes || 25) * 60;
+    gameState.productivity.timer.total = seconds;
+    gameState.productivity.timer.remaining = seconds;
+    stopTimerInterval();
+    saveProductivity();
+    renderTimer();
+  }));
   el('soundToggle').addEventListener('click', () => {
     gameState.settings.sound = !gameState.settings.sound;
     toast(gameState.settings.sound ? 'Zëri u aktivizua.' : 'Zëri u ndal.');
@@ -629,6 +799,7 @@ function setupEvents() {
 }
 
 function init() {
+  loadProductivity();
   setupEvents();
   const existing = loadProfile();
   if (existing) {
@@ -644,6 +815,7 @@ function init() {
 
 init();
 
+window.addEventListener('beforeunload', () => stopTimerInterval());
 
 document.querySelectorAll('.room-card').forEach(btn => {
   btn.addEventListener('click', () => {
